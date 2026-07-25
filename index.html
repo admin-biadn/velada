@@ -247,7 +247,10 @@ function resumen() {
     ultimo ? `Combate ${ultimo.id} · gana ${ultimo[ganadores[ultimo.id]]}` : "Aún no empieza",
     `${resueltos.length}/10 combates`,
     "",
-    ...r.map((p,i) => `${["🥇","🥈","🥉"][i] || (i+1)+"."} ${p.nombre} — ${p.puntos} pts (${p.aciertos}✅ ${p.fallos}❌)`),
+    ...r.map(p => {
+      const pos = r.findIndex(x => x.puntos === p.puntos) + 1;
+      return `${["🥇","🥈","🥉"][pos-1] || pos+"."} ${p.nombre} — ${p.puntos} pts (${p.aciertos}✅ ${p.fallos}❌)`;
+    }),
   ].join("\n");
 }
 
@@ -325,8 +328,10 @@ function vistaPicks() {
 
 function vistaRanking() {
   const r = ranking();
-  const filas = r.map((p,i) => `<div class="fila ${i===0 && p.puntos>0 ? "lider" : ""}">
-      <span class="pos">${i+1}</span>${avatar(p.nombre, "", 34, p.nombre === yo ? "on" : "")}
+  // empatados comparten posición: 1,1,1,4,4,4 (no 1,2,3,4,5,6)
+  const pos = p => r.findIndex(x => x.puntos === p.puntos) + 1;
+  const filas = r.map(p => `<div class="fila ${pos(p)===1 && p.puntos>0 ? "lider" : ""}">
+      <span class="pos">${pos(p)}</span>${avatar(p.nombre, "", 34, p.nombre === yo ? "on" : "")}
       <div style="flex:1;min-width:0">
         <div>${esc(p.nombre)}${p.nombre === yo ? ' <span style="color:var(--rosa);font-size:12px">tú</span>' : ""}</div>
         <div class="mini"><span>✅ ${p.aciertos}</span><span>❌ ${p.fallos}</span><span>máx. ${p.maximo}</span></div>
@@ -336,9 +341,10 @@ function vistaRanking() {
   const detalle = PARTICIPANTES.map(n => `<tr><td class="nom">${esc(n)}</td>${
     COMBATES.map(f => {
       const pk = picks[n + ":" + f.id], g = ganadores[f.id];
-      const visible = g || cerrada() || n === yo;
       const cls = g && pk ? (pk === g ? "ok" : "ko") : "";
-      return `<td class="${cls}">${!pk ? "–" : visible ? esc(f[pk].split(" ")[0]) : "•"}</td>`;
+      // nombre corto, salvo cuando la primera palabra no distingue ("La Parce")
+      const w = pk ? f[pk].split(" ") : [];
+      return `<td class="${cls}">${pk ? esc(w[0].length <= 3 ? f[pk] : w[0]) : "–"}</td>`;
     }).join("")}</tr>`).join("");
 
   return `<section><h2>Ranking</h2>
@@ -354,7 +360,7 @@ function vistaRanking() {
     <div class="kicker" style="margin-bottom:8px">Detalle por combate</div>
     <div class="scroll"><table><thead><tr><th style="text-align:left">Participante</th>
       ${COMBATES.map(f => `<th>${f.id}</th>`).join("")}</tr></thead><tbody>${detalle}</tbody></table></div>
-    <p class="muted" style="font-size:12px;margin-top:8px">Los picks de los demás se destapan al cerrar la quiniela o cuando el combate ya tiene ganador.</p>
+    <p class="muted" style="font-size:12px;margin-top:8px">Rosa = acierto · gris = fallo · – = sin marcar. Desliza la tabla para ver los 10 combates.</p>
   </section>`;
 }
 
