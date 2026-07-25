@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Quiniela · La Velada del Año 6</title>
+<style>
+:root{
+  --rosa:#FF2E88; --oro:#FACC15; --bg:#000;
+  --display: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  background:var(--bg); color:#fff; min-height:100vh;
+  font-family:"Inter","Segoe UI",system-ui,sans-serif;
+  -webkit-text-size-adjust:100%;
+}
+.wrap{max-width:760px;margin:0 auto;padding:24px 16px 96px}
+.d{font-family:var(--display);letter-spacing:.02em;text-transform:uppercase}
+.kicker{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--rosa)}
+h1{font-family:var(--display);text-transform:uppercase;font-size:42px;line-height:.95;font-weight:400}
+h1 span{color:var(--rosa)}
+h2{font-family:var(--display);text-transform:uppercase;font-size:26px;font-weight:400;margin-bottom:4px}
+.muted{color:rgba(255,255,255,.5);font-size:14px}
+.row{display:flex;align-items:center;gap:10px}
+.between{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+
+/* avatar */
+.av{display:flex;align-items:center;justify-content:center;border-radius:999px;overflow:hidden;flex-shrink:0;
+    box-shadow:0 0 0 1px rgba(255,255,255,.12)}
+.av img{width:100%;height:100%;object-fit:cover}
+.av span{font-family:var(--display);color:#fff}
+.av.on{box-shadow:0 0 0 2px var(--rosa)}
+.av.win{box-shadow:0 0 0 2px var(--oro)}
+
+/* barra progreso */
+.bars{display:flex;gap:4px;margin-top:16px}
+.bars i{height:8px;flex:1;border-radius:999px;background:rgba(255,46,136,.15)}
+.bars i.on{background:var(--rosa)}
+
+.pill{display:inline-flex;align-items:center;gap:8px;border-radius:999px;background:rgba(255,46,136,.15);
+      color:#fbcfe8;padding:5px 12px;font-size:12px;white-space:nowrap}
+.ghost{background:none;border:1px solid rgba(255,46,136,.4);color:#f9a8d4;border-radius:999px;
+       padding:5px 12px;font-size:12px;cursor:pointer}
+.ghost:hover{background:rgba(255,46,136,.1)}
+
+nav{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:24px 0}
+nav button{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);
+  border-radius:12px;padding:12px 6px;font-size:11px;text-transform:uppercase;letter-spacing:.06em;cursor:pointer;
+  font-family:inherit}
+nav button.on{border-color:var(--rosa);background:rgba(255,46,136,.15);color:#fbcfe8}
+
+.card{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);border-radius:16px;padding:12px;margin-bottom:12px}
+.card.lock{border-color:rgba(255,255,255,.05);background:rgba(255,255,255,.01)}
+.cabecera{display:flex;align-items:baseline;gap:8px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--rosa);margin-bottom:12px}
+.cabecera b{font-family:var(--display);font-size:18px;color:#fff;font-weight:400;letter-spacing:0}
+
+.duelo{display:flex;align-items:stretch;gap:8px}
+.vs{font-family:var(--display);color:rgba(255,255,255,.25);align-self:center;font-size:14px}
+.lado{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;cursor:pointer;
+  border:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.4);border-radius:12px;padding:12px 6px;
+  color:rgba(255,255,255,.85);font-size:12px;line-height:1.25;font-family:inherit;transition:.15s}
+.lado:hover:not(:disabled){border-color:rgba(255,46,136,.4)}
+.lado:disabled{cursor:default}
+.lado.pick{border-color:var(--rosa);background:rgba(255,46,136,.2)}
+.lado.win{border-color:var(--oro);background:rgba(250,204,21,.15)}
+.lado.off{opacity:.4}
+.tag{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#f9a8d4}
+.tag.oro{color:#fde68a}
+
+.fila{display:flex;align-items:center;gap:12px;border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.03);border-radius:12px;padding:12px;margin-bottom:8px}
+.fila.lider{border-color:var(--rosa);background:rgba(255,46,136,.1)}
+.pos{font-family:var(--display);width:26px;font-size:24px;color:rgba(255,255,255,.3)}
+.fila.lider .pos{color:var(--rosa)}
+.pts{font-family:var(--display);font-size:30px}
+.mini{font-size:12px;color:rgba(255,255,255,.45);display:flex;gap:12px;margin-top:2px}
+
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{background:rgba(255,255,255,.05);color:rgba(255,255,255,.5);font-weight:400;padding:8px}
+td{padding:8px;text-align:center;border-top:1px solid rgba(255,255,255,.05);color:rgba(255,255,255,.5)}
+td.nom{text-align:left;color:rgba(255,255,255,.8);max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+td.ok{background:rgba(255,46,136,.25);color:#fbcfe8}
+td.ko{background:rgba(255,255,255,.05);color:rgba(255,255,255,.25)}
+.scroll{overflow-x:auto;border:1px solid rgba(255,255,255,.1);border-radius:12px}
+
+input,textarea{width:100%;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1);border-radius:10px;
+  padding:12px;color:#fff;font-family:inherit;font-size:14px;outline:none}
+input:focus,textarea:focus{border-color:var(--rosa)}
+.btn{background:var(--rosa);color:#000;border:none;border-radius:10px;padding:12px 18px;font-size:14px;
+  font-weight:600;cursor:pointer;font-family:inherit}
+.btn.linea{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.7)}
+.btn.linea:hover{border-color:var(--rosa)}
+.btn.peligro{background:none;border:1px solid rgba(255,46,136,.5);color:#f9a8d4}
+
+.elige{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px;margin-bottom:8px;
+  border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.03);border-radius:12px;color:#fff;
+  font-family:inherit;font-size:15px;cursor:pointer}
+.elige:hover{border-color:var(--rosa);background:rgba(255,46,136,.1)}
+
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--rosa);color:#000;
+  border-radius:999px;padding:10px 18px;font-size:14px;font-weight:600;display:none;z-index:9}
+.err{border:1px solid rgba(255,46,136,.4);background:rgba(255,46,136,.1);color:#fbcfe8;border-radius:10px;
+  padding:12px;font-size:14px;margin-top:12px}
+.sec{margin-bottom:32px}
+@media(max-width:420px){h1{font-size:34px} nav button{font-size:10px}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div id="toast"></div>
+
+<script>
+/* ============================================================
+   CONFIGURACIÓN — rellena estas dos líneas y ya está.
+   La anon key es pública por diseño en Supabase (Settings → API).
+   ============================================================ */
+const SUPABASE_URL = "https://kvjfjlrmencgcqlxtzhj.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_T4KA0HEuGwhn3Y3Tz0kLag_oaFecEG_";
+
+const PUNTOS = 5;
+
+const COMBATES = [
+  { hora:"19:45", a:"Fabiana Sevillano", b:"La Parce" },
+  { hora:"20:15", a:"Clerss",            b:"Natalia MX" },
+  { hora:"20:45", a:"Edu Aguirre",       b:"Gastón Edul" },
+  { hora:"21:15", a:"Marta Díaz",        b:"Tatiana Kaer" },
+  { hora:"21:45", a:"Viruzz",            b:"Gero Arias" },
+  { hora:"22:15", a:"Alondrissa",        b:"Angie Velasco" },
+  { hora:"22:45", a:"Lit Killah",        b:"Kidd Keo" },
+  { hora:"23:15", a:"Rivers",            b:"Roro" },
+  { hora:"23:45", a:"Plex",              b:"Fernanfloo" },
+  { hora:"00:15", a:"IlloJuan",          b:"Grefg" },
+].map((c,i) => ({ id:i+1, ...c }));
+
+const PARTICIPANTES = ["Josvil","Fabián","Andrea","Gabriela","Jhonny Alberto","Jhonny José"];
+
+/* ---------- API ---------- */
+const H = {
+  "apikey": SUPABASE_ANON_KEY,
+  "Authorization": "Bearer " + SUPABASE_ANON_KEY,
+  "Content-Type": "application/json",
+};
+const rest = (path, opts = {}) =>
+  fetch(SUPABASE_URL + "/rest/v1/" + path, { ...opts, headers: { ...H, ...(opts.headers || {}) } })
+    .then(async r => {
+      if (!r.ok) throw new Error((await r.text()) || r.status);
+      return r.status === 204 ? null : r.json().catch(() => null);
+    });
+
+const api = {
+  leer: () => Promise.all([
+    rest("velada_picks?select=player,fight,pick"),
+    rest("velada_results?select=fight,winner"),
+    rest("velada_config?select=k,v"),
+  ]),
+  ponPick: (player, fight, pick) =>
+    rest("velada_picks", { method:"POST", headers:{ "Prefer":"resolution=merge-duplicates" },
+      body: JSON.stringify({ player, fight, pick }) }),
+  quitaPick: (player, fight) =>
+    rest(`velada_picks?player=eq.${encodeURIComponent(player)}&fight=eq.${fight}`, { method:"DELETE" }),
+  admin: (pin, action, key, value) =>
+    rest("rpc/velada_admin", { method:"POST",
+      body: JSON.stringify({ p_pin:pin, p_action:action, p_key:String(key), p_value:value }) }),
+};
+
+/* ---------- estado ---------- */
+let picks = {};          // "Nombre:3" -> "a"
+let ganadores = {};      // 3 -> "a"
+let cfg = {};            // { closed:"true", "foto:3:a":"https://..." }
+let yo = localStorage.getItem("velada6:yo") || "";
+let pin = sessionStorage.getItem("velada6:pin") || "";
+let tab = "picks";
+let error = "";
+
+/* ---------- utilidades ---------- */
+const PALETA = ["#FF2E88","#7C3AED","#06B6D4","#F59E0B","#EF4444","#10B981","#EC4899","#3B82F6"];
+const colorDe = n => { let h=0; for (let i=0;i<n.length;i++) h=(h*31+n.charCodeAt(i))%9973; return PALETA[h%PALETA.length]; };
+const iniciales = n => n.split(" ").filter(Boolean).slice(0,2).map(w=>w[0]).join("").toUpperCase();
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function avatar(nombre, foto, size, cls = "") {
+  const c = colorDe(nombre);
+  const fondo = foto ? "#111" : `linear-gradient(145deg, ${c}, ${c}55)`;
+  const dentro = foto
+    ? `<img src="${esc(foto)}" alt="" onerror="this.remove()">`
+    : `<span style="font-size:${Math.round(size*.38)}px">${esc(iniciales(nombre))}</span>`;
+  return `<div class="av ${cls}" style="width:${size}px;height:${size}px;background:${fondo}">${dentro}</div>`;
+}
+const foto = (f, lado) => cfg["foto:" + f.id + ":" + lado] || "";
+const cerrada = () => cfg.closed === "true";
+const esOrganizador = () => !!pin;
+
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg; t.style.display = "block";
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.style.display = "none", 1400);
+}
+
+/* ---------- carga ---------- */
+async function cargar(silencioso) {
+  try {
+    const [p, r, c] = await api.leer();
+    picks = {}; p.forEach(x => picks[x.player + ":" + x.fight] = x.pick);
+    ganadores = {}; r.forEach(x => ganadores[x.fight] = x.winner);
+    cfg = {}; c.forEach(x => cfg[x.k] = x.v);
+    error = "";
+  } catch (e) {
+    error = SUPABASE_ANON_KEY.startsWith("PEGA")
+      ? "Falta pegar la anon key de Supabase en index.html."
+      : "Sin conexión con el tablero. Reintentando…";
+    if (!silencioso) console.error(e);
+  }
+  pinta();
+}
+
+/* ---------- cálculo ---------- */
+function ranking() {
+  const pendientes = COMBATES.filter(f => !ganadores[f.id]).length;
+  return PARTICIPANTES.map(nombre => {
+    let aciertos = 0, fallos = 0;
+    COMBATES.forEach(f => {
+      const pick = picks[nombre + ":" + f.id], g = ganadores[f.id];
+      if (!g || !pick) return;
+      pick === g ? aciertos++ : fallos++;
+    });
+    const puntos = aciertos * PUNTOS;
+    return { nombre, aciertos, fallos, puntos, maximo: puntos + pendientes * PUNTOS };
+  }).sort((x,y) => y.puntos - x.puntos || y.maximo - x.maximo || x.nombre.localeCompare(y.nombre));
+}
+
+function resumen() {
+  const r = ranking();
+  const resueltos = COMBATES.filter(f => ganadores[f.id]);
+  const ultimo = resueltos[resueltos.length - 1];
+  return [
+    "🥊 QUINIELA LA VELADA 6",
+    ultimo ? `Combate ${ultimo.id} · gana ${ultimo[ganadores[ultimo.id]]}` : "Aún no empieza",
+    `${resueltos.length}/10 combates`,
+    "",
+    ...r.map((p,i) => `${["🥇","🥈","🥉"][i] || (i+1)+"."} ${p.nombre} — ${p.puntos} pts (${p.aciertos}✅ ${p.fallos}❌)`),
+  ].join("\n");
+}
+
+/* ---------- acciones ---------- */
+async function setPick(fightId, lado) {
+  if (cerrada() || ganadores[fightId]) return;
+  const k = yo + ":" + fightId, previo = picks[k];
+  try {
+    if (previo === lado) { delete picks[k]; pinta(); await api.quitaPick(yo, fightId); }
+    else { picks[k] = lado; pinta(); await api.ponPick(yo, fightId, lado); }
+    toast("Guardado");
+  } catch (e) { toast("No se guardó"); cargar(); }
+}
+
+async function setGanador(fightId, lado) {
+  try {
+    await api.admin(pin, "winner", fightId, ganadores[fightId] === lado ? null : lado);
+    toast("Resultado guardado"); cargar(true);
+  } catch (e) { toast("Error: " + e.message); }
+}
+
+async function setCfg(k, v) {
+  try { await api.admin(pin, "config", k, v); toast("Guardado"); cargar(true); }
+  catch (e) { toast("Error: " + e.message); }
+}
+
+async function probarPin(valor) {
+  try {
+    await api.admin(valor, "config", "ping", String(Date.now()));
+    pin = valor; sessionStorage.setItem("velada6:pin", valor); pinta();
+  } catch (e) { toast("PIN incorrecto"); }
+}
+
+function copiar() {
+  const t = resumen();
+  (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject())
+    .then(() => toast("Resumen copiado"))
+    .catch(() => { document.getElementById("resumen").select(); toast("Selecciona y copia"); });
+}
+
+/* ---------- render ---------- */
+function tarjeta(f, pickLado, accion, bloqueado) {
+  const g = ganadores[f.id];
+  const lado = l => {
+    const clases = ["lado"];
+    if (g === l) clases.push("win");
+    else if (pickLado === l) clases.push("pick");
+    else if (g) clases.push("off");
+    return `<button class="${clases.join(" ")}" ${bloqueado ? "disabled" : ""} data-do="${accion}" data-f="${f.id}" data-l="${l}">
+      ${avatar(f[l], foto(f,l), 52, g === l ? "win" : pickLado === l ? "on" : "")}
+      <span>${esc(f[l])}</span>
+      ${g === l ? '<span class="tag oro">🏆 Ganador</span>' : pickLado === l ? '<span class="tag">Tu pick</span>' : ""}
+    </button>`;
+  };
+  return `<div class="card ${bloqueado ? "lock" : ""}">
+    <div class="cabecera"><b>${String(f.id).padStart(2,"0")}</b><span>${f.hora}</span>
+      ${f.id === 10 ? '<span style="color:var(--rosa)">· Main event</span>' : ""}
+      ${bloqueado ? '<span style="color:rgba(255,255,255,.25)">🔒</span>' : ""}</div>
+    <div class="duelo">${lado("a")}<span class="vs">VS</span>${lado("b")}</div>
+  </div>`;
+}
+
+function vistaPicks() {
+  const faltan = COMBATES.filter(f => !picks[yo + ":" + f.id]).length;
+  return `<section><h2>Tus pronósticos</h2>
+    <p class="muted" style="margin-bottom:16px">${
+      cerrada() ? "Quiniela cerrada por el organizador."
+      : faltan === 0 ? "Los 10 marcados. Puedes cambiarlos hasta que empiece cada pelea."
+      : `Te faltan ${faltan} combates.`}</p>
+    ${COMBATES.map(f => tarjeta(f, picks[yo + ":" + f.id], "pick", cerrada() || !!ganadores[f.id])).join("")}
+  </section>`;
+}
+
+function vistaRanking() {
+  const r = ranking();
+  const filas = r.map((p,i) => `<div class="fila ${i===0 && p.puntos>0 ? "lider" : ""}">
+      <span class="pos">${i+1}</span>${avatar(p.nombre, "", 34, p.nombre === yo ? "on" : "")}
+      <div style="flex:1;min-width:0">
+        <div>${esc(p.nombre)}${p.nombre === yo ? ' <span style="color:var(--rosa);font-size:12px">tú</span>' : ""}</div>
+        <div class="mini"><span>✅ ${p.aciertos}</span><span>❌ ${p.fallos}</span><span>máx. ${p.maximo}</span></div>
+      </div>
+      <span class="pts">${p.puntos}</span></div>`).join("");
+
+  const detalle = PARTICIPANTES.map(n => `<tr><td class="nom">${esc(n)}</td>${
+    COMBATES.map(f => {
+      const pk = picks[n + ":" + f.id], g = ganadores[f.id];
+      const visible = g || cerrada() || n === yo;
+      const cls = g && pk ? (pk === g ? "ok" : "ko") : "";
+      return `<td class="${cls}">${!pk ? "–" : visible ? esc(f[pk].split(" ")[0]) : "•"}</td>`;
+    }).join("")}</tr>`).join("");
+
+  return `<section><h2>Ranking</h2>
+    <p class="muted" style="margin-bottom:16px">Máximo = puntos actuales + los combates que quedan.</p>
+    ${filas}
+    <div class="sec" style="margin-top:32px">
+      <div class="between" style="align-items:center;margin-bottom:8px">
+        <span class="kicker">Resumen para el grupo</span>
+        <button class="ghost" data-do="copiar">Copiar</button>
+      </div>
+      <textarea id="resumen" readonly rows="10" style="font-size:12px;color:rgba(255,255,255,.7)">${esc(resumen())}</textarea>
+    </div>
+    <div class="kicker" style="margin-bottom:8px">Detalle por combate</div>
+    <div class="scroll"><table><thead><tr><th style="text-align:left">Participante</th>
+      ${COMBATES.map(f => `<th>${f.id}</th>`).join("")}</tr></thead><tbody>${detalle}</tbody></table></div>
+    <p class="muted" style="font-size:12px;margin-top:8px">Los picks de los demás se destapan al cerrar la quiniela o cuando el combate ya tiene ganador.</p>
+  </section>`;
+}
+
+function vistaResultados() {
+  if (!esOrganizador()) {
+    return `<section><h2>Resultados</h2>
+      <p class="muted" style="margin-bottom:16px">Solo el organizador marca ganadores.</p>
+      <div class="row" style="margin-bottom:24px">
+        <input type="password" id="pin" placeholder="Clave de organizador" autocomplete="off">
+        <button class="btn" data-do="entrar">Entrar</button>
+      </div>
+      ${COMBATES.map(f => {
+        const g = ganadores[f.id];
+        return `<div class="fila"><b class="d" style="font-size:18px">${String(f.id).padStart(2,"0")}</b>
+          <span class="muted">${f.hora}</span>
+          ${g ? avatar(f[g], foto(f,g), 26, "win") : ""}
+          <span style="margin-left:auto;text-align:right;font-size:14px;color:${g ? "#fde68a" : "rgba(255,255,255,.35)"}">
+            ${g ? "Gana " + esc(f[g]) : "Sin resultado"}</span></div>`;
+      }).join("")}
+    </section>`;
+  }
+  return `<section><h2>Resultados</h2>
+    <div class="between" style="align-items:center;margin-bottom:16px">
+      <p class="muted">Marca al ganador al acabar cada pelea.</p>
+      <button class="ghost" data-do="cerrar" style="${cerrada() ? "background:var(--rosa);color:#000;border-color:var(--rosa)" : ""}">
+        ${cerrada() ? "🔒 Cerrada" : "🔓 Abierta"}</button>
+    </div>
+    ${COMBATES.map(f => tarjeta(f, ganadores[f.id], "ganador", false)).join("")}
+  </section>`;
+}
+
+function vistaAjustes() {
+  const fotos = !esOrganizador() ? "" : `<div class="sec">
+    <h2>Fotos de los peleadores</h2>
+    <p class="muted" style="margin-bottom:12px">Pega la URL de una imagen. Vacío = avatar con iniciales.</p>
+    ${COMBATES.map(f => `<div class="card">
+      <div class="kicker" style="margin-bottom:8px">Combate ${f.id}</div>
+      ${["a","b"].map(l => `<div class="row" style="margin-bottom:8px">
+        ${avatar(f[l], foto(f,l), 32)}
+        <input value="${esc(foto(f,l))}" placeholder="URL foto de ${esc(f[l])}"
+               data-cfg="foto:${f.id}:${l}" style="font-size:12px;padding:8px"></div>`).join("")}
+    </div>`).join("")}</div>`;
+
+  const reset = !esOrganizador() ? "" : `<div class="sec">
+    <h2>Empezar de cero</h2>
+    <p class="muted" style="margin-bottom:12px">Borra picks y resultados de todos. No se puede deshacer.</p>
+    <button class="btn peligro" data-do="reset">Reiniciar quiniela</button></div>`;
+
+  return `<section>
+    <div class="sec"><h2>Tu nombre</h2>
+      <p class="muted" style="margin-bottom:12px">Estás jugando como <span style="color:#f9a8d4">${esc(yo)}</span>.</p>
+      <button class="btn linea" data-do="cambiar">Cambiar de participante</button></div>
+    ${fotos}${reset}
+    <div class="sec"><h2>Cómo puntúa</h2>
+      <p class="muted">· ${PUNTOS} puntos por cada ganador acertado.<br>
+      · 0 puntos si fallas o dejas un combate sin marcar.<br>
+      · Cada combate se bloquea en cuanto se registra su resultado.</p></div>
+  </section>`;
+}
+
+function vistaElegir() {
+  return `<p class="kicker">Quiniela</p>
+    <h1>La Velada <span>del Año 6</span></h1>
+    <p class="muted" style="margin:8px 0 24px">Elige tu nombre. Solo lo harás una vez en este móvil.</p>
+    ${PARTICIPANTES.map(n => `<button class="elige" data-do="soy" data-n="${esc(n)}">
+      ${avatar(n, "", 36)}<span>${esc(n)}</span></button>`).join("")}
+    ${error ? `<div class="err">${esc(error)}</div>` : ""}`;
+}
+
+function pinta() {
+  const app = document.getElementById("app");
+  const activo = document.activeElement;
+  if (activo && (activo.tagName === "INPUT" || activo.tagName === "TEXTAREA") && app.contains(activo)) return;
+
+  if (!yo) { app.innerHTML = vistaElegir(); return; }
+
+  const resueltos = COMBATES.filter(f => ganadores[f.id]).length;
+  const tabs = [["picks","Mis picks"],["ranking","Ranking"],["resultados","Resultados"],["ajustes","Ajustes"]];
+
+  app.innerHTML = `
+    <header style="margin-bottom:24px">
+      <div class="between">
+        <div><p class="kicker">Quiniela</p><h1>La Velada <span>del Año 6</span></h1></div>
+        <span class="pill">${avatar(yo,"",18)} ${esc(yo)}</span>
+      </div>
+      <p class="muted" style="margin-top:8px;color:rgba(251,207,232,.6)">10 combates · ${PUNTOS} puntos por acierto</p>
+      <div class="bars">${COMBATES.map(f => `<i class="${ganadores[f.id] ? "on" : ""}"></i>`).join("")}</div>
+      <div class="between" style="align-items:center;margin-top:8px;font-size:12px;color:rgba(251,207,232,.6)">
+        <span>${resueltos} de 10 combates resueltos</span>
+        <button class="ghost" data-do="refrescar">↻ Actualizar</button>
+      </div>
+      ${error ? `<div class="err">${esc(error)}</div>` : ""}
+    </header>
+    <nav>${tabs.map(([id,l]) => `<button class="${tab===id?"on":""}" data-do="tab" data-t="${id}">${l}</button>`).join("")}</nav>
+    ${tab === "picks" ? vistaPicks() : tab === "ranking" ? vistaRanking()
+      : tab === "resultados" ? vistaResultados() : vistaAjustes()}`;
+}
+
+/* ---------- eventos (delegados: el DOM se repinta entero) ---------- */
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-do]");
+  if (!el) return;
+  const d = el.dataset;
+  switch (d.do) {
+    case "soy":       yo = d.n; localStorage.setItem("velada6:yo", yo); pinta(); break;
+    case "cambiar":   yo = ""; localStorage.removeItem("velada6:yo"); pinta(); break;
+    case "tab":       tab = d.t; pinta(); break;
+    case "refrescar": cargar(); break;
+    case "pick":      setPick(+d.f, d.l); break;
+    case "ganador":   setGanador(+d.f, d.l); break;
+    case "copiar":    copiar(); break;
+    case "entrar":    probarPin(document.getElementById("pin").value.trim()); break;
+    case "cerrar":    setCfg("closed", cerrada() ? "false" : "true"); break;
+    case "reset":     if (confirm("¿Borrar toda la quiniela?")) api.admin(pin,"reset","","").then(() => cargar()); break;
+  }
+});
+document.addEventListener("change", e => {
+  if (e.target.dataset.cfg) setCfg(e.target.dataset.cfg, e.target.value.trim());
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "Enter" && e.target.id === "pin") probarPin(e.target.value.trim());
+});
+
+cargar();
+setInterval(() => cargar(true), 5000);
+</script>
+</body>
+</html>
