@@ -173,6 +173,9 @@ let yo = localStorage.getItem("velada6:yo") || "";
 let pin = sessionStorage.getItem("velada6:pin") || "";
 let tab = "picks";
 let error = "";
+let firma = "";        // último estado pintado: si no cambia, no se toca el DOM
+let escribiendo = 0;   // guardados en vuelo: el refresco no debe pisarlos
+let pulsando = false, pendiente = false;  // no arrancar el DOM bajo el dedo
 
 /* ---------- utilidades ---------- */
 const PALETA = ["#FF2E88","#7C3AED","#06B6D4","#F59E0B","#EF4444","#10B981","#EC4899","#3B82F6"];
@@ -200,6 +203,7 @@ function toast(msg) {
 
 /* ---------- carga ---------- */
 async function cargar(silencioso) {
+  if (silencioso && escribiendo) return;   // hay un pick guardándose: no lo pises
   try {
     const [p, r, c] = await api.leer();
     picks = {}; p.forEach(x => picks[x.player + ":" + x.fight] = x.pick);
@@ -212,6 +216,10 @@ async function cargar(silencioso) {
       : "Sin conexión con el tablero. Reintentando…";
     if (!silencioso) console.error(e);
   }
+  // Repintar destruye los botones: hacerlo solo si algo cambió de verdad.
+  const nueva = JSON.stringify([picks, ganadores, cfg, error]);
+  if (silencioso && nueva === firma) return;
+  firma = nueva;
   pinta();
 }
 
@@ -247,11 +255,13 @@ function resumen() {
 async function setPick(fightId, lado) {
   if (cerrada() || ganadores[fightId]) return;
   const k = yo + ":" + fightId, previo = picks[k];
+  escribiendo++;
   try {
     if (previo === lado) { delete picks[k]; pinta(); await api.quitaPick(yo, fightId); }
     else { picks[k] = lado; pinta(); await api.ponPick(yo, fightId, lado); }
     toast("Guardado");
   } catch (e) { toast("No se guardó"); cargar(); }
+  finally { escribiendo--; }
 }
 
 async function setGanador(fightId, lado) {
@@ -415,6 +425,7 @@ function vistaElegir() {
 }
 
 function pinta() {
+  if (pulsando) { pendiente = true; return; }  // dedo apoyado: repintar se come el tap
   const app = document.getElementById("app");
   const activo = document.activeElement;
   if (activo && (activo.tagName === "INPUT" || activo.tagName === "TEXTAREA") && app.contains(activo)) return;
@@ -444,6 +455,14 @@ function pinta() {
 }
 
 /* ---------- eventos (delegados: el DOM se repinta entero) ---------- */
+// El repintado aplazado sale por setTimeout para que el "click" llegue antes.
+addEventListener("pointerdown", () => { pulsando = true; }, true);
+addEventListener("pointercancel", () => { pulsando = false; }, true);
+addEventListener("pointerup", () => {
+  pulsando = false;
+  if (pendiente) { pendiente = false; setTimeout(pinta, 0); }
+}, true);
+
 document.addEventListener("click", e => {
   const el = e.target.closest("[data-do]");
   if (!el) return;
